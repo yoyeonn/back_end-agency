@@ -126,7 +126,7 @@ public class PackReservationController {
     inv.put("destinationName",
         r.getPack().getDestination() != null ? r.getPack().getDestination().getName() : null);
 
-    // ✅ IMPORTANT: computed totals for facture
+    // IMPORTANT: computed totals for facture
     long nights = 0;
     if (r.getCheckIn() != null && r.getCheckOut() != null) {
       nights = ChronoUnit.DAYS.between(r.getCheckIn(), r.getCheckOut());

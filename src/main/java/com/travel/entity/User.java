@@ -21,7 +21,7 @@ public class User {
     private String password;
 
     @Enumerated(EnumType.STRING)
-    private Role role; // Role enum defined below
+    private Role role;
 
     private String resetToken;
     private LocalDateTime resetTokenExpiry;

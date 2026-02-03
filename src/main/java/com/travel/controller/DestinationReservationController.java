@@ -67,14 +67,14 @@ public class DestinationReservationController {
     return ResponseEntity.ok(resp);
   }
 
-  // ✅ PROFILE HISTORY
+  // PROFILE HISTORY
   @GetMapping("/me")
   public List<DestinationReservationHistoryDTO> myReservations(Principal principal) {
     var user = userRepo.findByEmail(principal.getName()).orElseThrow();
     return service.myHistory(user.getId());
   }
 
-  // ✅ INVOICE JSON (for jsPDF on frontend)
+  // INVOICE JSON (for jsPDF on frontend)
   @GetMapping("/{id}/invoice")
   public ResponseEntity<Map<String, Object>> invoice(@PathVariable Long id, Principal principal) {
     var user = userRepo.findByEmail(principal.getName()).orElseThrow();

@@ -27,7 +27,6 @@ public class HotelReservationDTO {
 
     private LocalDateTime createdAt;
 
-    // ✅ THIS is what your service uses: dto.setRoomNames(...)
     private List<String> roomNames;
 
     // ===== getters / setters =====
@@ -74,7 +73,6 @@ public class HotelReservationDTO {
     public LocalDateTime getCreatedAt() { return createdAt; }
     public void setCreatedAt(LocalDateTime createdAt) { this.createdAt = createdAt; }
 
-    // ✅ MISSING METHODS (your error)
     public List<String> getRoomNames() { return roomNames; }
     public void setRoomNames(List<String> roomNames) { this.roomNames = roomNames; }
 }

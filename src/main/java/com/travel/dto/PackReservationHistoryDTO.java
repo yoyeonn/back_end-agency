@@ -22,7 +22,7 @@ public class PackReservationHistoryDTO {
   public int adults;
   public int children;
 
-  // ✅ FORMULE
+  // FORMULE
   public String mealPlan;
   public double mealPlanExtra;
 
@@ -37,7 +37,7 @@ public class PackReservationHistoryDTO {
     dto.packName = r.getPack().getName();
     dto.pricePerPerson = r.getPack().getPrice();
 
-    // ✅ location always from destination when exists
+    // location always from destination when exists
     dto.location =
         (r.getPack().getDestination() != null)
             ? r.getPack().getDestination().getLocation()
@@ -59,7 +59,7 @@ public class PackReservationHistoryDTO {
     dto.adults = r.getAdults();
     dto.children = r.getChildren();
 
-    // ✅ formule
+    // formule
     dto.mealPlan = r.getMealPlan();
     dto.mealPlanExtra = r.getMealPlanExtra();
 

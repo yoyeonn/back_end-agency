@@ -92,7 +92,7 @@ public class DestinationController {
     Map<String, Object> response = new HashMap<>();
 
     try {
-    // Optional validation (recommended)
+    // Optional validation
     if (checkIn != null && checkOut != null && checkOut.isBefore(checkIn)) {
       response.put("ok", false);
       response.put("status", 400);

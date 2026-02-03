@@ -43,17 +43,17 @@ public class AdminDashboardController {
 
     long customers = userRepo.count();
 
-    // ✅ Orders = destination + hotel + pack
+    //Orders = destination + hotel + pack
     long orders = destRepo.count() + hotelRepo.count() + packRepo.count();
 
-    // ✅ Monthly sales (last 12 months)
+    // Monthly sales (last 12 months)
     List<Map<String, Object>> monthlySales = buildMonthlySalesLast12Months();
 
-    // ✅ Target + revenue
+    // Target + revenue
     double target = 20000.0;
     double revenueThisMonth = revenueForMonth(YearMonth.now());
 
-    // ✅ Today revenue
+    // Today revenue
     double todayRevenue = revenueForDay(LocalDate.now());
 
     double targetPercent = target > 0 ? (revenueThisMonth / target) * 100.0 : 0.0;
@@ -151,7 +151,7 @@ private List<RecentOrder> buildRecentOrders(int limit) {
   // fetch top "limit" from each table
   var dest = destRepo.findRecent(p).stream()
       .map(r -> new RecentOrder(
-          r.getDestination().getName(),     // change if your Destination field is different
+          r.getDestination().getName(),
           "Destination",
           r.getTotalAmount(),
           "Confirmed",
@@ -161,7 +161,7 @@ private List<RecentOrder> buildRecentOrders(int limit) {
 
   var hotels = hotelRepo.findRecent(p).stream()
       .map(r -> new RecentOrder(
-          r.getHotel().getName(),           // change if Hotel field is different
+          r.getHotel().getName(),
           "Hotel",
           r.getTotalAmount(),
           "Confirmed",
@@ -171,7 +171,7 @@ private List<RecentOrder> buildRecentOrders(int limit) {
 
   var packs = packRepo.findRecent(p).stream()
       .map(r -> new RecentOrder(
-          r.getPack().getName(),            // change if Packs field is different
+          r.getPack().getName(),
           "Pack",
           r.getTotalAmount(),
           "Confirmed",

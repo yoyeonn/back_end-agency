@@ -25,7 +25,6 @@ public class Hotel {
     @Column(columnDefinition = "TEXT")
     private String about;
 
-    // ✅ store list fields as JSON strings
     @Column(columnDefinition = "JSON")
     private String images;
 
@@ -59,7 +58,7 @@ public class Hotel {
     @Column(name = "available_to")
     private LocalDate availableTo;
 
-    // ✅ Relationships
+    // Relationships
     @OneToMany(mappedBy = "hotel", cascade = CascadeType.ALL, orphanRemoval = true, fetch = FetchType.LAZY)
     private List<Room> rooms;
 

@@ -29,7 +29,7 @@ public class PackReservation {
   private int adults;
   private int children;
 
-  // ✅ FORMULE
+  // FORMULE
   @Column(length = 30)
   private String mealPlan;
 
@@ -37,7 +37,7 @@ public class PackReservation {
 
   private double totalAmount;
 
-  // Store room info as CSV
+  //room info CSV
   @Column(length = 2000)
   private String roomIds;
 

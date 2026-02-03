@@ -70,7 +70,7 @@ public class AuthController {
             String role = userDetails.getAuthorities().iterator().next().getAuthority();
             String token = jwtUtil.generateToken(userDetails.getUsername(), role);
 
-            // ✅ Fetch the real user from DB to get the name
+            // Fetch the real user from DB to get the name
             User user = userService.findByEmail(request.getEmail())
                     .orElseThrow(() -> new UsernameNotFoundException("User not found"));
 
@@ -129,7 +129,7 @@ public ResponseEntity<?> forgotPassword(@Valid @RequestBody ForgotPasswordReques
         String token = userService.createResetToken(req.getEmail());
         String resetLink = "http://localhost:4200/reset-password?token=" + token;
 
-        // ✅ SEND REAL EMAIL
+        // SEND REAL EMAIL
         brevoEmailService.sendResetPasswordEmail(req.getEmail(), resetLink);
 
         return ResponseEntity.ok("Un email de réinitialisation a été envoyé.");

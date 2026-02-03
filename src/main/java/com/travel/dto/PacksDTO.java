@@ -6,7 +6,7 @@ public class PacksDTO {
     private Long id;
     private String name;
 
-    // ✅ keep these for frontend, BUT they will come from Destination
+    // frontend, BUT they will come from Destination
     private String country;
     private String location;
     private String map;

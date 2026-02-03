@@ -80,7 +80,7 @@ public class AdminProfileController {
         ));
     }
 
-    // ✅ Upload image (multipart/form-data)
+    // Upload image (multipart/form-data)
     @PostMapping("/image")
 public ResponseEntity<AdminProfileResponse> uploadProfileImage(
         @RequestHeader("Authorization") String auth,

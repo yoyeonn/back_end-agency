@@ -24,13 +24,13 @@ public class JwtUtil {
                 .claim("role", role)
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + jwtExpirationMs))
-                .signWith(key, SignatureAlgorithm.HS256) // ✅ new API
+                .signWith(key, SignatureAlgorithm.HS256) // new API
                 .compact();
     }
 
     // Validate token and return claims
     public Claims validateToken(String token) {
-        return Jwts.parserBuilder() // ✅ new parserBuilder
+        return Jwts.parserBuilder() // new parserBuilder
                 .setSigningKey(key)
                 .build()
                 .parseClaimsJws(token)

@@ -9,9 +9,9 @@ public class PackReservationRequestDTO {
   public int adults;
   public int children;
 
-  // ✅ FORMULE
+  // FORMULE
   public String mealPlan;      // ROOM_ONLY, BB, HB, FB, AI, UAI
-  public double mealPlanExtra; // extra per person per night (optional but useful)
+  public double mealPlanExtra; // extra per person per night
 
   public double totalAmount;
 

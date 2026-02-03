@@ -169,7 +169,7 @@ public class HotelController {
         }
     }
 
-    // ✅ hotel images (multiple)
+    // hotel images (multiple)
     @PostMapping("/{id}/images")
     public ResponseEntity<Map<String, Object>> uploadHotelImages(
             @PathVariable Long id,
@@ -197,7 +197,7 @@ public class HotelController {
         ));
     }
 
-    // ✅ room image (single file replaces old)
+    // room image (single file replaces old)
     @PostMapping("/{hotelId}/rooms/{roomId}/image")
     public ResponseEntity<Map<String, Object>> uploadRoomImage(
             @PathVariable Long hotelId,

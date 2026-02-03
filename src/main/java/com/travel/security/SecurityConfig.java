@@ -47,7 +47,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/packs/**").permitAll()
                 .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
 
-                // ✅ reservations (must be logged in)
+                // reservations (must be logged in)
                 .requestMatchers(HttpMethod.POST, "/api/reservations").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/reservations/me").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/reservations/*/invoice").authenticated()
@@ -59,7 +59,7 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.GET, "/api/pack-reservations/me").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/pack-reservations/*/invoice").authenticated()
 
-                // ✅ admin reservations endpoints
+                // admin reservations endpoints
                 .requestMatchers("/api/admin/reservations/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/dashboard/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/profile/**").hasRole("ADMIN")

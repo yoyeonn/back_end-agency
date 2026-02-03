@@ -20,10 +20,10 @@ public class AdminPackReservationsController {
   }
 
   /**
-   * ✅ Price rule:
+   * Price rule:
    * pricePerPersonPerNight = destination.price + firstRoom.price
    * - destination.price from Destination entity
-   * - firstRoom.price = hotel.rooms[0].price (if exists)
+   * - firstRoom.price = hotel.rooms[0].price
    */
   private double packPricePerPersonPerNight(com.travel.entity.PackReservation r) {
     double destinationPrice = 0;
@@ -55,10 +55,10 @@ public class AdminPackReservationsController {
       dto.put("packLocation",
           r.getPack().getDestination() != null ? r.getPack().getDestination().getLocation() : null);
 
-      // ✅ price per person per night = destination + first room
+      // price per person per night = destination + first room
       dto.put("pricePerPerson", packPricePerPersonPerNight(r));
 
-      // ✅ FORMULE
+      // FORMULE
       dto.put("mealPlan", r.getMealPlan());
       dto.put("mealPlanExtra", r.getMealPlanExtra());
 
@@ -92,7 +92,7 @@ public class AdminPackReservationsController {
     dto.put("packLocation",
         r.getPack().getDestination() != null ? r.getPack().getDestination().getLocation() : null);
 
-    // ✅ correct price
+    // correct price
     dto.put("pricePerPerson", packPricePerPersonPerNight(r));
 
     dto.put("hotelName", r.getPack().getHotel() != null ? r.getPack().getHotel().getName() : null);
@@ -107,7 +107,7 @@ public class AdminPackReservationsController {
     dto.put("adults", r.getAdults());
     dto.put("children", r.getChildren());
 
-    // ✅ FORMULE
+    // FORMULE
     dto.put("mealPlan", r.getMealPlan());
     dto.put("mealPlanExtra", r.getMealPlanExtra());
 
@@ -123,7 +123,7 @@ public class AdminPackReservationsController {
     return ResponseEntity.ok(Map.of("data", dto));
   }
 
-  // ✅ Admin invoice JSON (no owner check)
+  // Admin invoice JSON (no owner check)
   @GetMapping("/packs/{id}/invoice")
   public ResponseEntity<?> invoice(@PathVariable Long id) {
     var r = repo.findById(id).orElseThrow();
@@ -149,7 +149,7 @@ public class AdminPackReservationsController {
     inv.put("packId", r.getPack().getId());
     inv.put("packName", r.getPack().getName());
 
-    // ✅ correct price
+    // correct price
     double pricePerPerson = packPricePerPersonPerNight(r);
     inv.put("pricePerPerson", pricePerPerson);
 
@@ -167,7 +167,7 @@ public class AdminPackReservationsController {
 
     int payingPeople = r.getAdults() + r.getChildren();
 
-    // ✅ formulas use correct price
+    // formulas use correct price
     double basePackTotal = pricePerPerson * payingPeople * nights;
     double mealPlanTotal = r.getMealPlanExtra() * payingPeople * nights;
 

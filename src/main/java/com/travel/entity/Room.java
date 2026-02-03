@@ -13,7 +13,7 @@ public class Room {
 
     private String name;
 
-    // ✅ single image only
+    // single image only
     private String image;
 
     private String description;

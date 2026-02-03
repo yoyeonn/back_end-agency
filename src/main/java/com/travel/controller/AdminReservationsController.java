@@ -61,7 +61,7 @@ public class AdminReservationsController {
         }
     }
 
-    // ✅ ADMIN invoice JSON (NO owner check)
+    // ADMIN invoice JSON (NO owner check)
     @GetMapping("/hotels/{id}/invoice")
     public ResponseEntity<Map<String, Object>> getInvoiceJsonAdmin(@PathVariable Long id) {
         HotelReservation r = hotelReservationService.getById(id);
@@ -91,14 +91,14 @@ public class AdminReservationsController {
         response.put("roomChildren", r.getRoomChildren());
         response.put("roomBabies", r.getRoomBabies());
 
-        // user info (nice for facture)
+        // user info (facture)
         response.put("userName", r.getUser().getName());
         response.put("userEmail", r.getUser().getEmail());
 
         return ResponseEntity.ok(response);
     }
 
-    // ✅ ADMIN invoice PDF (server generated)
+    // ADMIN invoice PDF (server generated)
     @GetMapping("/hotels/{id}/invoice.pdf")
     public ResponseEntity<byte[]> downloadInvoicePdfAdmin(@PathVariable Long id) {
         HotelReservation r = hotelReservationService.getById(id);
