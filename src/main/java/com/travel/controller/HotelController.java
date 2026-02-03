@@ -5,6 +5,7 @@ import com.travel.service.HotelService;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.util.*;
 
@@ -44,34 +45,34 @@ public class HotelController {
 
     @GetMapping("/{id}")
     public ResponseEntity<Map<String, Object>> getHotelById(@PathVariable Long id) {
-    Map<String, Object> response = new HashMap<>();
+        Map<String, Object> response = new HashMap<>();
 
-    try {
-        HotelDTO hotel = hotelService.getHotelById(id);
+        try {
+            HotelDTO hotel = hotelService.getHotelById(id);
 
-        response.put("ok", true);
-        response.put("status", HttpStatus.OK.value());
-        response.put("message", "Hotel retrieved successfully");
-        response.put("data", hotel);
+            response.put("ok", true);
+            response.put("status", HttpStatus.OK.value());
+            response.put("message", "Hotel retrieved successfully");
+            response.put("data", hotel);
 
-        return ResponseEntity.ok(response);
+            return ResponseEntity.ok(response);
 
-    } catch (RuntimeException ex) {
-        response.put("ok", false);
-        response.put("status", HttpStatus.NOT_FOUND.value());
-        response.put("message", ex.getMessage());
-        response.put("error", "Hotel not found");
+        } catch (RuntimeException ex) {
+            response.put("ok", false);
+            response.put("status", HttpStatus.NOT_FOUND.value());
+            response.put("message", ex.getMessage());
+            response.put("error", "Hotel not found");
 
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(response);
 
-    } catch (Exception ex) {
-        response.put("ok", false);
-        response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-        response.put("message", ex.getMessage());
-        response.put("error", "Internal Server Error");
+        } catch (Exception ex) {
+            response.put("ok", false);
+            response.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            response.put("message", ex.getMessage());
+            response.put("error", "Internal Server Error");
 
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
-    }
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
+        }
     }
 
     @GetMapping("/search")
@@ -85,11 +86,31 @@ public class HotelController {
         return hotelService.getSuggestions(keyword);
     }
 
+    @PostMapping
+    public ResponseEntity<Map<String, Object>> createHotel(@RequestBody HotelDTO hotelDTO) {
+        try {
+            HotelDTO created = hotelService.createHotel(hotelDTO);
+
+            Map<String, Object> response = new HashMap<>();
+            response.put("ok", true);
+            response.put("status", HttpStatus.CREATED.value());
+            response.put("message", "Hotel created successfully");
+            response.put("data", created);
+
+            return ResponseEntity.status(HttpStatus.CREATED).body(response);
+
+        } catch (Exception ex) {
+            Map<String, Object> errorResponse = new HashMap<>();
+            errorResponse.put("ok", false);
+            errorResponse.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
+            errorResponse.put("error", "Internal Server Error");
+            errorResponse.put("message", ex.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
+        }
+    }
+
     @PutMapping("/{id}")
-    public ResponseEntity<Map<String, Object>> updateHotel(
-            @PathVariable Long id,
-            @RequestBody HotelDTO hotelDTO
-    ) {
+    public ResponseEntity<Map<String, Object>> updateHotel(@PathVariable Long id, @RequestBody HotelDTO hotelDTO) {
         Map<String, Object> response = new HashMap<>();
 
         try {
@@ -148,27 +169,58 @@ public class HotelController {
         }
     }
 
-    @PostMapping
-    public ResponseEntity<Map<String, Object>> createHotel(@RequestBody HotelDTO hotelDTO) {
-        try {
-            HotelDTO created = hotelService.createHotel(hotelDTO);
+    // ✅ hotel images (multiple)
+    @PostMapping("/{id}/images")
+    public ResponseEntity<Map<String, Object>> uploadHotelImages(
+            @PathVariable Long id,
+            @RequestParam("files") List<MultipartFile> files
+    ) {
+        HotelDTO updated = hotelService.uploadHotelImages(id, files);
 
-            Map<String, Object> response = new HashMap<>();
-            response.put("ok", true);
-            response.put("status", HttpStatus.CREATED.value());
-            response.put("message", "Hotel created successfully");
-            response.put("data", created);
-
-            return ResponseEntity.status(HttpStatus.CREATED).body(response);
-
-        } catch (Exception ex) {
-            Map<String, Object> errorResponse = new HashMap<>();
-            errorResponse.put("ok", false);
-            errorResponse.put("status", HttpStatus.INTERNAL_SERVER_ERROR.value());
-            errorResponse.put("error", "Internal Server Error");
-            errorResponse.put("message", ex.getMessage());
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(errorResponse);
-        }
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "status", HttpStatus.OK.value(),
+                "message", "Images uploaded successfully",
+                "data", updated
+        ));
     }
 
+    @DeleteMapping("/{id}/images/{index}")
+    public ResponseEntity<Map<String, Object>> deleteHotelImage(@PathVariable Long id, @PathVariable int index) {
+        HotelDTO updated = hotelService.deleteHotelImage(id, index);
+
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "status", HttpStatus.OK.value(),
+                "message", "Image removed successfully",
+                "data", updated
+        ));
+    }
+
+    // ✅ room image (single file replaces old)
+    @PostMapping("/{hotelId}/rooms/{roomId}/image")
+    public ResponseEntity<Map<String, Object>> uploadRoomImage(
+            @PathVariable Long hotelId,
+            @PathVariable Long roomId,
+            @RequestParam("file") MultipartFile file
+    ) {
+        HotelDTO updated = hotelService.uploadRoomImage(hotelId, roomId, file);
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "status", HttpStatus.OK.value(),
+                "message", "Room image uploaded successfully",
+                "data", updated
+        ));
+    }
+
+    @DeleteMapping("/{hotelId}/rooms/{roomId}/image")
+    public ResponseEntity<Map<String, Object>> deleteRoomImage(@PathVariable Long hotelId, @PathVariable Long roomId) {
+        HotelDTO updated = hotelService.deleteRoomImage(hotelId, roomId);
+        return ResponseEntity.ok(Map.of(
+                "ok", true,
+                "status", HttpStatus.OK.value(),
+                "message", "Room image deleted successfully",
+                "data", updated
+        ));
+    }
 }

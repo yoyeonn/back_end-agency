@@ -56,4 +56,40 @@ public class BrevoEmailService {
             throw new RuntimeException("Failed to send reset email", e);
         }
     }
+    public void sendContactReceivedEmail(String toEmail, String name) {
+    String subject = "Nous avons bien reçu votre message ✅";
+
+    String html = """
+      <div style="font-family:Arial,sans-serif;line-height:1.6">
+        <h2>Bonjour %s,</h2>
+        <p>Merci de nous avoir contactés.</p>
+        <p>Votre message a bien été reçu. Nous vous répondrons rapidement.</p>
+        <p style="margin-top:20px">
+          Cordialement,<br/>
+          <b>%s</b>
+        </p>
+        <hr/>
+        <small>Message automatique – merci de ne pas répondre.</small>
+      </div>
+    """.formatted(name, senderName);
+
+    try {
+        MimeMessage message = mailSender.createMimeMessage();
+        MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
+
+        // 👇 THIS is the line that throws UnsupportedEncodingException
+        helper.setFrom(senderEmail, senderName);
+
+        helper.setTo(toEmail);
+        helper.setSubject(subject);
+        helper.setText(html, true);
+
+        mailSender.send(message);
+
+    } catch (MessagingException | java.io.UnsupportedEncodingException e) {
+        throw new RuntimeException("Failed to send contact confirmation email", e);
+    }
+}
+
+
 }

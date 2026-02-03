@@ -3,12 +3,18 @@ package com.travel.service;
 import com.travel.dto.DestinationDTO;
 import com.travel.entity.*;
 import com.travel.repository.DestinationRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+import org.springframework.web.multipart.MultipartFile;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import java.time.LocalDate;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
+
+
 
 @Service
 public class DestinationService {
@@ -54,6 +60,7 @@ public class DestinationService {
         d.setPrice(dto.getPrice());
         d.setDays(dto.getDays());
         d.setLocation(dto.getLocation());
+        d.setMap(dto.getMap());
         d.setTitle(dto.getTitle());
         d.setDescription(dto.getDescription());
         d.setAbout(dto.getAbout());
@@ -63,7 +70,7 @@ public class DestinationService {
         d.setAvailableTo(parseDate(dto.getAvailableTo()));
 
         // images (store as comma-separated)
-        d.setImages(listToCsv(dto.getImages()));
+        d.setImages("[]");
 
         // children
         applyChildrenFromDTO(d, dto);
@@ -85,6 +92,7 @@ public class DestinationService {
         d.setPrice(dto.getPrice());
         d.setDays(dto.getDays());
         d.setLocation(dto.getLocation());
+        d.setMap(dto.getMap());
         d.setTitle(dto.getTitle());
         d.setDescription(dto.getDescription());
         d.setAbout(dto.getAbout());
@@ -93,8 +101,8 @@ public class DestinationService {
         d.setAvailableFrom(parseDate(dto.getAvailableFrom()));
         d.setAvailableTo(parseDate(dto.getAvailableTo()));
 
-        // images
-        d.setImages(listToCsv(dto.getImages()));
+        
+
 
         // replace children (orphanRemoval=true handles delete)
         applyChildrenFromDTO(d, dto);
@@ -183,6 +191,7 @@ public class DestinationService {
         dto.setPrice(d.getPrice());
         dto.setDays(d.getDays());
         dto.setLocation(d.getLocation());
+        dto.setMap(d.getMap());
         dto.setTitle(d.getTitle());
         dto.setDescription(d.getDescription());
         dto.setAbout(d.getAbout());
@@ -190,7 +199,7 @@ public class DestinationService {
         dto.setAvailableFrom(d.getAvailableFrom() != null ? d.getAvailableFrom().toString() : null);
         dto.setAvailableTo(d.getAvailableTo() != null ? d.getAvailableTo().toString() : null);
 
-        dto.setImages(csvToList(d.getImages()));
+        dto.setImages(parseJsonList(d.getImages()));
 
         dto.setActivities(d.getActivities() == null ? List.of() :
                 d.getActivities().stream().map(a -> {
@@ -238,13 +247,73 @@ public class DestinationService {
         return LocalDate.parse(s.trim()); // expects yyyy-MM-dd
     }
 
-    private String listToCsv(List<String> list) {
-        if (list == null || list.isEmpty()) return null;
-        return String.join(",", list);
+    private final ObjectMapper objectMapper = new ObjectMapper();
+
+    @Autowired
+    private CloudinaryService cloudinaryService;
+
+    private String toJsonString(List<String> list) {
+    try {
+        if (list == null) return "[]";
+        List<String> clean = list.stream()
+                .filter(s -> s != null && !s.isBlank())
+                .collect(Collectors.toList());
+        return objectMapper.writeValueAsString(clean);
+    } catch (Exception e) {
+        return "[]";
+    }
+}
+
+private List<String> parseJsonList(String json) {
+    try {
+        if (json == null || json.isBlank()) return new ArrayList<>();
+        List<String> list = objectMapper.readValue(json, new TypeReference<List<String>>() {});
+        if (list == null) return new ArrayList<>();
+        return list.stream()
+                .filter(s -> s != null && !s.isBlank())
+                .collect(Collectors.toCollection(ArrayList::new));
+    } catch (Exception e) {
+        return new ArrayList<>();
+    }
+}
+
+
+public DestinationDTO uploadDestinationImages(Long id, List<MultipartFile> files) {
+    Destination d = destinationRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Destination not found with id: " + id));
+
+    List<String> current = parseJsonList(d.getImages()); // always mutable
+
+    for (MultipartFile f : files) {
+        String url = cloudinaryService.uploadImage(f, "destinations");
+        current.add(url);
     }
 
-    private List<String> csvToList(String csv) {
-        if (csv == null || csv.trim().isEmpty()) return List.of();
-        return List.of(csv.split("\\s*,\\s*"));
+    d.setImages(toJsonString(current));
+    return convertToDTO(destinationRepository.save(d));
+}
+
+
+public DestinationDTO deleteDestinationImage(Long id, int index) {
+    Destination d = destinationRepository.findById(id)
+            .orElseThrow(() -> new RuntimeException("Destination not found with id: " + id));
+
+    List<String> current = parseJsonList(d.getImages());
+    if (current == null) current = new ArrayList<>();
+
+    if (index < 0 || index >= current.size()) {
+        throw new RuntimeException("Invalid image index");
     }
+
+    String url = current.remove(index);
+
+    if (url != null && url.startsWith("http")) {
+        cloudinaryService.deleteByUrl(url);
+    }
+
+    d.setImages(toJsonString(current));
+    Destination saved = destinationRepository.save(d);
+    return convertToDTO(saved);
+}
+
 }

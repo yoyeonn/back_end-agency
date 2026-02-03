@@ -2,8 +2,11 @@ package com.travel.service;
 
 import com.travel.entity.User;
 import com.travel.repository.UserRepository;
+import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.core.userdetails.*;
 import org.springframework.stereotype.Service;
+
+import java.util.List;
 
 @Service
 public class CustomUserDetailsService implements UserDetailsService {
@@ -19,10 +22,18 @@ public class CustomUserDetailsService implements UserDetailsService {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new UsernameNotFoundException("User not found with email: " + email));
 
+        String role = user.getRole().name(); // ADMIN or ROLE_ADMIN
+
+        // ✅ make it compatible with hasRole("ADMIN")
+        if (!role.startsWith("ROLE_")) {
+            role = "ROLE_" + role;
+        }
+
         return org.springframework.security.core.userdetails.User.builder()
                 .username(user.getEmail())
                 .password(user.getPassword())
-                .authorities(user.getRole().name()) // ROLE_CLIENT, ROLE_ADMIN, etc.
+                .authorities(List.of(new SimpleGrantedAuthority(role)))
                 .build();
     }
 }
+

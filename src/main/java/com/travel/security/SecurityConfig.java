@@ -42,9 +42,10 @@ public class SecurityConfig {
                 .requestMatchers("/api/auth/me").authenticated()
 
                 // public browse
-                .requestMatchers("/api/hotels/**").permitAll()
-                .requestMatchers("/api/destinations/**").permitAll()
-                .requestMatchers("/api/packs/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/hotels/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/destinations/**").permitAll()
+                .requestMatchers(HttpMethod.GET, "/api/packs/**").permitAll()
+                .requestMatchers(HttpMethod.POST, "/api/contact").permitAll()
 
                 // ✅ reservations (must be logged in)
                 .requestMatchers(HttpMethod.POST, "/api/reservations").authenticated()
@@ -57,13 +58,20 @@ public class SecurityConfig {
                 .requestMatchers(HttpMethod.POST, "/api/pack-reservations").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/pack-reservations/me").authenticated()
                 .requestMatchers(HttpMethod.GET, "/api/pack-reservations/*/invoice").authenticated()
-                
-
 
                 // ✅ admin reservations endpoints
                 .requestMatchers("/api/admin/reservations/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/dashboard/**").hasRole("ADMIN")
                 .requestMatchers("/api/admin/profile/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/hotels/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT,  "/api/hotels/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,"/api/hotels/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/destinations/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT,  "/api/destinations/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,"/api/destinations/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.POST, "/api/packs/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.PUT,  "/api/packs/**").hasRole("ADMIN")
+                .requestMatchers(HttpMethod.DELETE,"/api/packs/**").hasRole("ADMIN")
 
                 .anyRequest().authenticated()
             )

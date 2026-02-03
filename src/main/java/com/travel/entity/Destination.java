@@ -18,6 +18,13 @@ public class Destination {
     private double price;
     private int days;
     private String location;
+    private String map;
+    public String getMap() {
+        return map;
+    }
+    public void setMap(String map) {
+        this.map = map;
+    }
     private String title;
     private LocalDate availableFrom;
     
@@ -53,7 +60,7 @@ public class Destination {
     @Column(length = 2000)
     private String about;
 
-    @Column(length = 2000)
+    @Column(columnDefinition = "JSON")
     private String images;
 
 

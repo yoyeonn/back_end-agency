@@ -6,7 +6,7 @@ public class HotelDTO {
     private Long id;
     private String name;
     private String description;
-    private String location;
+    private String map;
     private String city;
     public String getCity() {
         return city;
@@ -122,12 +122,12 @@ public class HotelDTO {
         this.days = days;
     }
 
-    public String getLocation() {
-        return location;
+    public String getmap() {
+        return map;
     }
 
-    public void setLocation(String location) {
-        this.location = location;
+    public void setmap(String map) {
+        this.map = map;
     }
 
     

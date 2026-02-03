@@ -22,9 +22,6 @@ public class Packs {
     @Column(length = 2000)
     private String about;
 
-    @Column(length = 2000)
-    private String images;
-
     @ManyToOne
     @JoinColumn(name = "hotel_id")
     private Hotel hotel;
@@ -45,8 +42,6 @@ public class Packs {
     @OneToMany(mappedBy = "packs", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PacksNearby> nearby = new ArrayList<>();
 
-    // ===== getters/setters =====
-
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 
@@ -64,9 +59,6 @@ public class Packs {
 
     public String getAbout() { return about; }
     public void setAbout(String about) { this.about = about; }
-
-    public String getImages() { return images; }
-    public void setImages(String images) { this.images = images; }
 
     public Hotel getHotel() { return hotel; }
     public void setHotel(Hotel hotel) { this.hotel = hotel; }

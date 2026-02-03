@@ -9,10 +9,17 @@ public class PacksDTO {
     // ✅ keep these for frontend, BUT they will come from Destination
     private String country;
     private String location;
+    private String map;
+
+    public String getMap() {
+        return map;
+    }
+    public void setMap(String map) {
+        this.map = map;
+    }
 
     private double price;
     private int days;
-    private double rating;
     private String description;
     private String about;
     private List<String> images;
@@ -42,9 +49,6 @@ public class PacksDTO {
 
     public int getDays() { return days; }
     public void setDays(int days) { this.days = days; }
-
-    public double getRating() { return rating; }
-    public void setRating(double rating) { this.rating = rating; }
 
     public String getDescription() { return description; }
     public void setDescription(String description) { this.description = description; }

@@ -7,6 +7,8 @@ import org.springframework.format.annotation.DateTimeFormat;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
+
 
 import java.time.LocalDate;
 import java.util.*;
@@ -196,5 +198,36 @@ public ResponseEntity<Map<String, Object>> deleteDestination(@PathVariable Long 
         return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
     }
 }
+
+@PostMapping("/{id}/images")
+public ResponseEntity<Map<String, Object>> uploadDestinationImages(
+        @PathVariable Long id,
+        @RequestParam("files") List<MultipartFile> files
+) {
+    DestinationDTO updated = destinationService.uploadDestinationImages(id, files);
+
+    return ResponseEntity.ok(Map.of(
+            "ok", true,
+            "status", HttpStatus.OK.value(),
+            "message", "Images uploaded successfully",
+            "data", updated
+    ));
+}
+
+@DeleteMapping("/{id}/images/{index}")
+public ResponseEntity<Map<String, Object>> deleteDestinationImage(
+        @PathVariable Long id,
+        @PathVariable int index
+) {
+    DestinationDTO updated = destinationService.deleteDestinationImage(id, index);
+
+    return ResponseEntity.ok(Map.of(
+            "ok", true,
+            "status", HttpStatus.OK.value(),
+            "message", "Image removed successfully",
+            "data", updated
+    ));
+}
+
 
 }

@@ -8,9 +8,13 @@ import com.travel.entity.*;
 import com.travel.repository.DestinationRepository;
 import com.travel.repository.HotelRepository;
 import com.travel.repository.PacksRepository;
+import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.ObjectMapper;
+
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -20,6 +24,8 @@ public class PacksService {
     private final PacksRepository packsRepository;
     private final HotelRepository hotelRepository;
     private final DestinationRepository destinationRepository;
+
+    private final ObjectMapper objectMapper = new ObjectMapper();
 
     public PacksService(
             PacksRepository packsRepository,
@@ -50,6 +56,9 @@ public class PacksService {
     @Transactional
     public PacksDTO createPack(PacksUpsertDTO payload) {
         Packs pack = new Packs();
+
+        // ✅ never keep null for images (avoid null problems)
+
         applyUpsert(pack, payload);
         Packs saved = packsRepository.save(pack);
         return convertToDTO(saved);
@@ -60,6 +69,7 @@ public class PacksService {
     public PacksDTO updatePack(Long id, PacksUpsertDTO payload) {
         Packs pack = packsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pack not found with id: " + id));
+
 
         applyUpsert(pack, payload);
         Packs saved = packsRepository.save(pack);
@@ -84,12 +94,8 @@ public class PacksService {
         pack.setDescription(payload.getDescription());
         pack.setAbout(payload.getAbout());
 
-        // images list => comma string
-        if (payload.getImages() != null && !payload.getImages().isEmpty()) {
-            pack.setImages(String.join(",", payload.getImages()));
-        } else {
-            pack.setImages(null);
-        }
+        // ✅ packs.images stored as JSON list (optional)
+        // If you DON'T want custom pack images, you can just keep it "[]"
 
         // hotel by id
         if (payload.getHotelId() != null) {
@@ -100,7 +106,7 @@ public class PacksService {
             pack.setHotel(null);
         }
 
-        // ✅ destination by id (country/location will come from destination later)
+        // destination by id
         if (payload.getDestinationId() != null) {
             Destination d = destinationRepository.findById(payload.getDestinationId())
                     .orElseThrow(() -> new RuntimeException("Destination not found with id: " + payload.getDestinationId()));
@@ -163,7 +169,34 @@ public class PacksService {
             dto.setLocation(pack.getDestination().getLocation());
         }
 
-        dto.setImages(pack.getImages() != null ? List.of(pack.getImages().split(",")) : List.of());
+        // Map: take it from Hotel first (because pack is tied to a hotel)
+if (pack.getHotel() != null) {
+    // if your Hotel entity has getMap() (recommended)
+    dto.setMap(pack.getHotel().getmap());
+}
+
+// fallback to destination map if hotel map is null/blank (optional)
+if ((dto.getMap() == null || dto.getMap().isBlank()) && pack.getDestination() != null) {
+    dto.setMap(pack.getDestination().getMap()); // only if Destination has map
+}
+
+
+        // ✅ MAIN FIX: pack.images should be hotel.images + destination.images (+ pack.images optional)
+        List<String> mergedImages = new ArrayList<>();
+
+        // 1) optional: pack custom images
+
+        // 2) hotel images
+        if (pack.getHotel() != null) {
+            mergedImages.addAll(parseJsonList(pack.getHotel().getImages()));
+        }
+
+        // 3) destination images
+        if (pack.getDestination() != null) {
+            mergedImages.addAll(parseJsonList(pack.getDestination().getImages()));
+        }
+
+        dto.setImages(mergedImages);
 
         dto.setActivities(
                 pack.getActivities().stream().map(a -> {
@@ -193,7 +226,7 @@ public class PacksService {
                 }).collect(Collectors.toList())
         );
 
-        // Hotel (avoid map inference problem by using HotelDTO.RoomDTO explicitly)
+        // Hotel DTO
         if (pack.getHotel() != null) {
             Hotel h = pack.getHotel();
 
@@ -202,7 +235,9 @@ public class PacksService {
             hotelDTO.setName(h.getName());
             hotelDTO.setDescription(h.getDescription());
             hotelDTO.setStars(h.getStars());
-            hotelDTO.setImages(h.getImages() != null ? List.of(h.getImages().split(",")) : List.of());
+
+            // ✅ FIX: parse JSON images
+            hotelDTO.setImages(parseJsonList(h.getImages()));
 
             hotelDTO.setRooms(
                     h.getRooms() == null ? List.of() :
@@ -231,11 +266,24 @@ public class PacksService {
             destDTO.setCountry(d.getCountry());
             destDTO.setLocation(d.getLocation());
             destDTO.setDescription(d.getDescription());
-            destDTO.setImages(d.getImages() != null ? List.of(d.getImages().split(",")) : List.of());
+
+            // ✅ FIX: parse JSON images
+            destDTO.setImages(parseJsonList(d.getImages()));
 
             dto.setDestination(destDTO);
         }
 
         return dto;
+    }
+
+    private List<String> parseJsonList(String json) {
+        try {
+            if (json == null || json.isBlank()) return List.of();
+            List<String> list = objectMapper.readValue(json, new TypeReference<List<String>>() {});
+            if (list == null) return List.of();
+            return list.stream().filter(s -> s != null && !s.isBlank()).toList();
+        } catch (Exception e) {
+            return List.of();
+        }
     }
 }

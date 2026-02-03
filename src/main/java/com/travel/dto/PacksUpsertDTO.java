@@ -9,7 +9,6 @@ public class PacksUpsertDTO {
     private String location;
     private String description;
     private String about;
-    private List<String> images;
 
     private Long hotelId;
     private Long destinationId;
@@ -35,9 +34,6 @@ public class PacksUpsertDTO {
 
     public String getAbout() { return about; }
     public void setAbout(String about) { this.about = about; }
-
-    public List<String> getImages() { return images; }
-    public void setImages(List<String> images) { this.images = images; }
 
     public Long getHotelId() { return hotelId; }
     public void setHotelId(Long hotelId) { this.hotelId = hotelId; }
