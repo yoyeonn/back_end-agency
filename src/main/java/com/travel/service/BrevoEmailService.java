@@ -45,10 +45,10 @@ public class BrevoEmailService {
             MimeMessage message = mailSender.createMimeMessage();
             MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-            helper.setFrom(senderEmail);              // must match SMTP account in many cases
+            helper.setFrom(senderEmail);
             helper.setTo(toEmail);
             helper.setSubject(subject);
-            helper.setText(html, true);               // true = HTML
+            helper.setText(html, true);
 
             mailSender.send(message);
 
@@ -77,7 +77,6 @@ public class BrevoEmailService {
         MimeMessage message = mailSender.createMimeMessage();
         MimeMessageHelper helper = new MimeMessageHelper(message, true, "UTF-8");
 
-        // 👇 THIS is the line that throws UnsupportedEncodingException
         helper.setFrom(senderEmail, senderName);
 
         helper.setTo(toEmail);

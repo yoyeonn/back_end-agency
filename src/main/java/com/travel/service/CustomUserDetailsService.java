@@ -24,7 +24,6 @@ public class CustomUserDetailsService implements UserDetailsService {
 
         String role = user.getRole().name(); // ADMIN or ROLE_ADMIN
 
-        // ✅ make it compatible with hasRole("ADMIN")
         if (!role.startsWith("ROLE_")) {
             role = "ROLE_" + role;
         }

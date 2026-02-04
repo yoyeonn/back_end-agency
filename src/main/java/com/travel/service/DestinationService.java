@@ -164,7 +164,7 @@ public class DestinationService {
             }
         }
 
-        // Reviews (assuming your DestinationReview has: name, stars, comment, destination)
+        // Reviews
         if (d.getReviews() == null) d.setReviews(new ArrayList<>());
         else d.getReviews().clear();
         if (dto.getReviews() != null) {

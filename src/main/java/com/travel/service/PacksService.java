@@ -56,9 +56,6 @@ public class PacksService {
     @Transactional
     public PacksDTO createPack(PacksUpsertDTO payload) {
         Packs pack = new Packs();
-
-        // ✅ never keep null for images (avoid null problems)
-
         applyUpsert(pack, payload);
         Packs saved = packsRepository.save(pack);
         return convertToDTO(saved);
@@ -69,7 +66,6 @@ public class PacksService {
     public PacksDTO updatePack(Long id, PacksUpsertDTO payload) {
         Packs pack = packsRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Pack not found with id: " + id));
-
 
         applyUpsert(pack, payload);
         Packs saved = packsRepository.save(pack);
@@ -94,19 +90,20 @@ public class PacksService {
         pack.setDescription(payload.getDescription());
         pack.setAbout(payload.getAbout());
 
-        // ✅ packs.images stored as JSON list (optional)
-        // If you DON'T want custom pack images, you can just keep it "[]"
-
-        // hotel by id
+        // ===== Hotel + Pack Map =====
         if (payload.getHotelId() != null) {
             Hotel h = hotelRepository.findById(payload.getHotelId())
                     .orElseThrow(() -> new RuntimeException("Hotel not found with id: " + payload.getHotelId()));
+
             pack.setHotel(h);
+
+            pack.setMap(h.getmap());
         } else {
             pack.setHotel(null);
+            pack.setMap(null);
         }
 
-        // destination by id
+        // ===== Destination =====
         if (payload.getDestinationId() != null) {
             Destination d = destinationRepository.findById(payload.getDestinationId())
                     .orElseThrow(() -> new RuntimeException("Destination not found with id: " + payload.getDestinationId()));
@@ -115,7 +112,7 @@ public class PacksService {
             pack.setDestination(null);
         }
 
-        // Activities
+        // ===== Activities =====
         pack.getActivities().clear();
         if (payload.getActivities() != null) {
             for (PacksUpsertDTO.ActivityDTO a : payload.getActivities()) {
@@ -127,7 +124,7 @@ public class PacksService {
             }
         }
 
-        // FAQ
+        // ===== FAQ =====
         pack.getFaq().clear();
         if (payload.getFaq() != null) {
             for (PacksUpsertDTO.FaqDTO f : payload.getFaq()) {
@@ -139,7 +136,7 @@ public class PacksService {
             }
         }
 
-        // Nearby
+        // ===== Nearby =====
         pack.getNearby().clear();
         if (payload.getNearby() != null) {
             for (PacksUpsertDTO.NearbyDTO n : payload.getNearby()) {
@@ -163,35 +160,26 @@ public class PacksService {
         dto.setDescription(pack.getDescription());
         dto.setAbout(pack.getAbout());
 
-        // ✅ country + location always from destination
+        // country + location always from destination
         if (pack.getDestination() != null) {
             dto.setCountry(pack.getDestination().getCountry());
             dto.setLocation(pack.getDestination().getLocation());
         }
 
-        // Map: take it from Hotel first (because pack is tied to a hotel)
-if (pack.getHotel() != null) {
-    // if your Hotel entity has getMap() (recommended)
-    dto.setMap(pack.getHotel().getmap());
-}
+        dto.setMap(pack.getMap());
 
-// fallback to destination map if hotel map is null/blank (optional)
-if ((dto.getMap() == null || dto.getMap().isBlank()) && pack.getDestination() != null) {
-    dto.setMap(pack.getDestination().getMap()); // only if Destination has map
-}
+        //if pack.map is null, take it from hotel
+        if ((dto.getMap() == null || dto.getMap().isBlank()) && pack.getHotel() != null) {
+            dto.setMap(pack.getHotel().getmap());
+        }
 
-
-        // ✅ MAIN FIX: pack.images should be hotel.images + destination.images (+ pack.images optional)
+        // pack images = hotel images + destination images
         List<String> mergedImages = new ArrayList<>();
 
-        // 1) optional: pack custom images
-
-        // 2) hotel images
         if (pack.getHotel() != null) {
             mergedImages.addAll(parseJsonList(pack.getHotel().getImages()));
         }
 
-        // 3) destination images
         if (pack.getDestination() != null) {
             mergedImages.addAll(parseJsonList(pack.getDestination().getImages()));
         }
@@ -226,7 +214,7 @@ if ((dto.getMap() == null || dto.getMap().isBlank()) && pack.getDestination() !=
                 }).collect(Collectors.toList())
         );
 
-        // Hotel DTO
+        // ===== Hotel DTO =====
         if (pack.getHotel() != null) {
             Hotel h = pack.getHotel();
 
@@ -235,8 +223,6 @@ if ((dto.getMap() == null || dto.getMap().isBlank()) && pack.getDestination() !=
             hotelDTO.setName(h.getName());
             hotelDTO.setDescription(h.getDescription());
             hotelDTO.setStars(h.getStars());
-
-            // ✅ FIX: parse JSON images
             hotelDTO.setImages(parseJsonList(h.getImages()));
 
             hotelDTO.setRooms(
@@ -256,7 +242,7 @@ if ((dto.getMap() == null || dto.getMap().isBlank()) && pack.getDestination() !=
             dto.setHotel(hotelDTO);
         }
 
-        // Destination DTO
+        // ===== Destination DTO =====
         if (pack.getDestination() != null) {
             Destination d = pack.getDestination();
 
@@ -266,8 +252,6 @@ if ((dto.getMap() == null || dto.getMap().isBlank()) && pack.getDestination() !=
             destDTO.setCountry(d.getCountry());
             destDTO.setLocation(d.getLocation());
             destDTO.setDescription(d.getDescription());
-
-            // ✅ FIX: parse JSON images
             destDTO.setImages(parseJsonList(d.getImages()));
 
             dto.setDestination(destDTO);

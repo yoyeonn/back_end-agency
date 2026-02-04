@@ -147,9 +147,6 @@ public class HotelService {
         return convertToDTO(saved);
     }
 
-    // ==========================
-    // UPDATE (FIXED ROOMS MERGE)
-    // ==========================
     public HotelDTO updateHotel(Long id, HotelDTO dto) {
         Hotel hotel = hotelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Hotel not found with id: " + id));
@@ -168,7 +165,7 @@ public class HotelService {
         hotel.setAvailableDates(dto.getAvailableDates());
         hotel.setBestTimeToVisit(dto.getBestTimeToVisit());
 
-        // ✅ update JSON fields only if client sent them (prevents wiping)
+        // update JSON fields only if client sent them (prevents wiping)
         if (dto.getImages() != null) hotel.setImages(toJsonString(dto.getImages()));
         if (dto.getHighlights() != null) hotel.setHighlights(toJsonString(dto.getHighlights()));
         if (dto.getTravelTips() != null) hotel.setTravelTips(toJsonString(dto.getTravelTips()));
@@ -176,7 +173,7 @@ public class HotelService {
         if (dto.getIncludes() != null) hotel.setIncludes(toJsonString(dto.getIncludes()));
         if (dto.getExcludes() != null) hotel.setExcludes(toJsonString(dto.getExcludes()));
 
-        // ✅ ROOMS: MERGE BY ID (keeps images unless new provided)
+        // ROOMS: MERGE BY ID
         if (hotel.getRooms() == null) hotel.setRooms(new ArrayList<>());
 
         Map<Long, Room> existingRooms = hotel.getRooms().stream()
@@ -198,7 +195,7 @@ public class HotelService {
                     room.setCapacity(rDto.getCapacity());
                     room.setPrice(rDto.getPrice());
 
-                    // ✅ keep old image if dto image is empty/null
+                    // keep old image if dto image is empty/null
                     if (rDto.getImage() != null && !rDto.getImage().isBlank()) {
                         room.setImage(rDto.getImage());
                     }
@@ -266,18 +263,12 @@ public class HotelService {
         return convertToDTO(saved);
     }
 
-    // ==========================
-    // DELETE HOTEL
-    // ==========================
     public void deleteHotel(Long id) {
         Hotel hotel = hotelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Hotel not found with id: " + id));
         hotelRepository.delete(hotel);
     }
 
-    // ==========================
-    // HOTEL IMAGES (MULTI UPLOAD + DELETE BY INDEX)
-    // ==========================
     public HotelDTO uploadHotelImages(Long id, List<MultipartFile> files) {
         Hotel hotel = hotelRepository.findById(id)
                 .orElseThrow(() -> new RuntimeException("Hotel not found with id: " + id));
@@ -318,7 +309,7 @@ public class HotelService {
     }
 
     // ==========================
-    // ✅ ROOM IMAGE (ONLY 1) — upload replaces / delete sets null
+    // ROOM IMAGE (ONLY 1) — upload replaces / delete sets null
     // ==========================
     public HotelDTO uploadRoomImage(Long hotelId, Long roomId, MultipartFile file) {
         Hotel hotel = hotelRepository.findById(hotelId)
@@ -335,7 +326,7 @@ public class HotelService {
         }
 
         String url = cloudinaryService.uploadImage(file, "rooms");
-        room.setImage(url); // ✅ replace old
+        room.setImage(url); // replace old
         Hotel saved = hotelRepository.save(hotel);
         return convertToDTO(saved);
     }

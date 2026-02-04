@@ -33,7 +33,7 @@ public class HotelReservationService {
         return repo.findById(id).orElseThrow();
     }
 
-    // ✅ ADMIN: list all (DTO)
+    // ADMIN: list all (DTO)
     public List<HotelReservationDTO> getAllAdmin() {
         return repo.findAllByOrderByCreatedAtDesc()
                 .stream()
@@ -41,7 +41,7 @@ public class HotelReservationService {
                 .collect(Collectors.toList());
     }
 
-    // ✅ ADMIN: one (DTO)
+    // ADMIN: one (DTO)
     public HotelReservationDTO getByIdAdmin(Long id) {
         HotelReservation r = repo.findById(id).orElseThrow();
         return toDTO(r);

@@ -16,6 +16,12 @@ public class Packs {
     private double price;
     private int days;
 
+    @Column(columnDefinition = "TEXT")
+    private String map;
+
+    public String getMap() { return map; }
+    public void setMap(String map) { this.map = map; }
+
     @Column(length = 1000)
     private String description;
 

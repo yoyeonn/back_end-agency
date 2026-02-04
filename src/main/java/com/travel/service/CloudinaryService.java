@@ -21,7 +21,7 @@ public class CloudinaryService {
     return uploadImage(file, "profiles");
   }
 
-  // ✅ new reusable method for any folder (hotels, rooms, etc.)
+  // reusable method for any folder (hotels, rooms, etc.)
   public String uploadImage(MultipartFile file, String folder) {
     try {
       Map<?, ?> res = cloudinary.uploader().upload(
