@@ -104,7 +104,6 @@ public class DestinationService {
         
 
 
-        // replace children (orphanRemoval=true handles delete)
         applyChildrenFromDTO(d, dto);
 
         Destination saved = destinationRepository.save(d);

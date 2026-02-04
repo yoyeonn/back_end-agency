@@ -48,6 +48,12 @@ public class Packs {
     @OneToMany(mappedBy = "packs", cascade = CascadeType.ALL, orphanRemoval = true)
     private List<PacksNearby> nearby = new ArrayList<>();
 
+    @Column(nullable = false)
+    private boolean deleted = false;
+
+    public boolean isDeleted() { return deleted; }
+    public void setDeleted(boolean deleted) { this.deleted = deleted; }
+
     public Long getId() { return id; }
     public void setId(Long id) { this.id = id; }
 

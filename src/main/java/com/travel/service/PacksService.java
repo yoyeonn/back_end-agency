@@ -39,7 +39,7 @@ public class PacksService {
 
     // ===== GET ALL =====
     public List<PacksDTO> getAllPacks() {
-        return packsRepository.findAll()
+        return packsRepository.findAllByDeletedFalse()
                 .stream()
                 .map(this::convertToDTO)
                 .collect(Collectors.toList());
@@ -47,7 +47,7 @@ public class PacksService {
 
     // ===== GET ONE =====
     public PacksDTO getPackById(Long id) {
-        Packs pack = packsRepository.findById(id)
+        Packs pack = packsRepository.findByIdAndDeletedFalse(id)
                 .orElseThrow(() -> new RuntimeException("Pack not found with id: " + id));
         return convertToDTO(pack);
     }
@@ -75,10 +75,11 @@ public class PacksService {
     // ===== DELETE =====
     @Transactional
     public void deletePack(Long id) {
-        if (!packsRepository.existsById(id)) {
-            throw new RuntimeException("Pack not found with id: " + id);
-        }
-        packsRepository.deleteById(id);
+        Packs pack = packsRepository.findByIdAndDeletedFalse(id)
+                .orElseThrow(() -> new RuntimeException("Pack not found with id: " + id));
+
+        pack.setDeleted(true);
+        packsRepository.save(pack);
     }
 
     // ===== Apply Create/Update payload to entity =====
